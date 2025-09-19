@@ -16,6 +16,7 @@ function hello_elementor_settings_init() {
 
 	require 'settings/settings-header.php';
 	require 'settings/settings-footer.php';
+	require 'settings/settings-grid-lines.php';
 
 	add_action( 'elementor/kit/register_tabs', function( \Elementor\Core\Kits\Documents\Kit $kit ) {
 		if ( ! hello_elementor_display_header_footer() ) {
@@ -24,6 +25,7 @@ function hello_elementor_settings_init() {
 
 		$kit->register_tab( 'hello-settings-header', HelloElementor\Includes\Settings\Settings_Header::class );
 		$kit->register_tab( 'hello-settings-footer', HelloElementor\Includes\Settings\Settings_Footer::class );
+		$kit->register_tab( 'hello-settings-grid-lines', HelloElementor\Includes\Settings\Settings_Grid_Lines::class );
 	}, 1, 40 );
 }
 

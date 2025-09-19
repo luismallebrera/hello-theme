@@ -162,6 +162,77 @@ export default class ControlsHook extends $e.modules.hookUI.After {
 					$element.find( 'p' ).text( inputValue );
 				},
 			},
+			hello_grid_lines_enable: {
+				selector: 'body',
+				callback: ( $element, args ) => {
+					const inputValue = args.settings.hello_grid_lines_enable;
+					const gridOverlay = elementor.$previewContents.find( '.hello-grid-lines-overlay' );
+
+					if ( 'yes' === inputValue ) {
+						if ( ! gridOverlay.length ) {
+							this.createGridLinesOverlay();
+						} else {
+							gridOverlay.show();
+						}
+					} else {
+						gridOverlay.hide();
+					}
+				},
+			},
+			hello_grid_lines_line_color: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesStyles();
+				},
+			},
+			hello_grid_lines_column_color: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesStyles();
+				},
+			},
+			hello_grid_lines_columns: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesColumns();
+				},
+			},
+			hello_grid_lines_outline: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesStyles();
+				},
+			},
+			hello_grid_lines_max_width: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesStyles();
+				},
+			},
+			hello_grid_lines_width: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesStyles();
+				},
+			},
+			hello_grid_lines_line_width: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesStyles();
+				},
+			},
+			hello_grid_lines_direction: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesStyles();
+				},
+			},
+			hello_grid_lines_z_index: {
+				selector: '.hello-grid-lines-overlay',
+				callback: () => {
+					this.updateGridLinesStyles();
+				},
+			},
 		};
 	}
 
@@ -197,6 +268,102 @@ export default class ControlsHook extends $e.modules.hookUI.After {
 		if ( '' !== inputValue ) {
 			element.addClass( classPrefix + inputValue );
 		}
+	}
+
+	/**
+	 * Create grid lines overlay in the editor preview
+	 */
+	createGridLinesOverlay() {
+		const $previewDocument = elementor.$previewContents;
+		const gridOverlay = $previewDocument.find( '.hello-grid-lines-overlay' );
+
+		if ( gridOverlay.length ) {
+			return;
+		}
+
+		const overlayHtml = '<div class="hello-grid-lines-overlay"><div class="hello-grid-lines-columns"></div></div>';
+		$previewDocument.find( 'body' ).append( overlayHtml );
+
+		this.updateGridLinesColumns();
+		this.updateGridLinesStyles();
+	}
+
+	/**
+	 * Update grid lines columns
+	 */
+	updateGridLinesColumns() {
+		const $previewDocument = elementor.$previewContents;
+		const $columnsContainer = $previewDocument.find( '.hello-grid-lines-columns' );
+
+		if ( ! $columnsContainer.length ) {
+			return;
+		}
+
+		const settings = elementor.settings.page.model.attributes;
+		const columns = settings.hello_grid_lines_columns?.size || 12;
+
+		$columnsContainer.empty();
+
+		for ( let i = 0; i < columns; i++ ) {
+			$columnsContainer.append( '<div class="hello-grid-lines-column"></div>' );
+		}
+	}
+
+	/**
+	 * Update grid lines styles
+	 */
+	updateGridLinesStyles() {
+		const $previewDocument = elementor.$previewContents;
+		const $existingStyle = $previewDocument.find( '#hello-grid-lines-editor-css' );
+
+		if ( $existingStyle.length ) {
+			$existingStyle.remove();
+		}
+
+		const settings = elementor.settings.page.model.attributes;
+		const lineColor = settings.hello_grid_lines_line_color || '#e1e1e1';
+		const columnColor = settings.hello_grid_lines_column_color || '#f0f0f0';
+		const outline = settings.hello_grid_lines_outline || 'yes';
+		const maxWidth = settings.hello_grid_lines_max_width?.size || 1200;
+		const width = settings.hello_grid_lines_width?.size || 100;
+		const lineWidth = settings.hello_grid_lines_line_width?.size || 1;
+		const direction = settings.hello_grid_lines_direction?.size || 0;
+		const zIndex = settings.hello_grid_lines_z_index || -1;
+
+		let css = '<style id="hello-grid-lines-editor-css">';
+		css += '.hello-grid-lines-overlay {';
+		css += 'position: fixed;';
+		css += 'top: 0;';
+		css += 'left: 50%;';
+		css += 'transform: translateX(-50%);';
+		css += 'height: 100vh;';
+		css += 'pointer-events: none;';
+		css += 'z-index: ' + zIndex + ';';
+		css += 'max-width: ' + maxWidth + 'px;';
+		css += 'width: ' + width + '%;';
+
+		if ( 'yes' === outline ) {
+			css += 'border-left: ' + lineWidth + 'px solid ' + lineColor + ';';
+			css += 'border-right: ' + lineWidth + 'px solid ' + lineColor + ';';
+		}
+
+		css += '}';
+		css += '.hello-grid-lines-columns {';
+		css += 'display: flex;';
+		css += 'height: 100%;';
+		css += 'transform: rotate(' + direction + 'deg);';
+		css += '}';
+		css += '.hello-grid-lines-column {';
+		css += 'flex: 1;';
+		css += 'background-color: ' + columnColor + ';';
+		css += 'border-right: ' + lineWidth + 'px solid ' + lineColor + ';';
+		css += '}';
+		css += '.hello-grid-lines-column:last-child {';
+		css += 'border-right: none;';
+		css += '}';
+		css += '</style>';
+
+		$previewDocument.find( 'head' ).append( css );
 	}
 
 	/**
