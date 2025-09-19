@@ -215,6 +215,191 @@ if ( ! function_exists( 'hello_elementor_add_description_meta_tag' ) ) {
 }
 add_action( 'wp_head', 'hello_elementor_add_description_meta_tag' );
 
+/**
+ * Output Grid Lines CSS on frontend if enabled
+ *
+ * @return void
+ */
+function hello_elementor_grid_lines_css() {
+	if ( ! hello_header_footer_experiment_active() ) {
+		return;
+	}
+
+	$grid_lines_enable = hello_elementor_get_setting( 'hello_grid_lines_enable' );
+	
+	if ( 'yes' !== $grid_lines_enable ) {
+		return;
+	}
+
+	$line_color = hello_elementor_get_setting( 'hello_grid_lines_line_color' );
+	$column_color = hello_elementor_get_setting( 'hello_grid_lines_column_color' );
+	$columns = hello_elementor_get_setting( 'hello_grid_lines_columns' );
+	$columns_tablet = hello_elementor_get_setting( 'hello_grid_lines_columns_tablet' );
+	$columns_mobile = hello_elementor_get_setting( 'hello_grid_lines_columns_mobile' );
+	$outline = hello_elementor_get_setting( 'hello_grid_lines_outline' );
+	$max_width = hello_elementor_get_setting( 'hello_grid_lines_max_width' );
+	$max_width_tablet = hello_elementor_get_setting( 'hello_grid_lines_max_width_tablet' );
+	$max_width_mobile = hello_elementor_get_setting( 'hello_grid_lines_max_width_mobile' );
+	$width = hello_elementor_get_setting( 'hello_grid_lines_width' );
+	$width_tablet = hello_elementor_get_setting( 'hello_grid_lines_width_tablet' );
+	$width_mobile = hello_elementor_get_setting( 'hello_grid_lines_width_mobile' );
+	$line_width = hello_elementor_get_setting( 'hello_grid_lines_line_width' );
+	$line_width_tablet = hello_elementor_get_setting( 'hello_grid_lines_line_width_tablet' );
+	$line_width_mobile = hello_elementor_get_setting( 'hello_grid_lines_line_width_mobile' );
+	$direction = hello_elementor_get_setting( 'hello_grid_lines_direction' );
+	$z_index = hello_elementor_get_setting( 'hello_grid_lines_z_index' );
+
+	// Set defaults if empty
+	$line_color = $line_color ?: '#e1e1e1';
+	$column_color = $column_color ?: '#f0f0f0';
+	$columns = $columns['size'] ?? 12;
+	$columns_tablet = $columns_tablet['size'] ?? 8;
+	$columns_mobile = $columns_mobile['size'] ?? 4;
+	$outline = $outline ?: 'yes';
+	$max_width = $max_width['size'] ?? 1200;
+	$max_width_tablet = $max_width_tablet['size'] ?? 768;
+	$max_width_mobile = $max_width_mobile['size'] ?? 480;
+	$width = $width['size'] ?? 100;
+	$width_tablet = $width_tablet['size'] ?? $width;
+	$width_mobile = $width_mobile['size'] ?? $width;
+	$line_width = $line_width['size'] ?? 1;
+	$line_width_tablet = $line_width_tablet['size'] ?? $line_width;
+	$line_width_mobile = $line_width_mobile['size'] ?? $line_width;
+	$direction = $direction['size'] ?? 0;
+	$z_index = $z_index ?? -1;
+
+	$css = '<style id="hello-grid-lines-css">';
+	$css .= '.hello-grid-lines-overlay {';
+	$css .= 'position: fixed;';
+	$css .= 'top: 0;';
+	$css .= 'left: 50%;';
+	$css .= 'transform: translateX(-50%);';
+	$css .= 'height: 100vh;';
+	$css .= 'pointer-events: none;';
+	$css .= 'z-index: ' . esc_attr( $z_index ) . ';';
+	$css .= 'max-width: ' . esc_attr( $max_width ) . 'px;';
+	$css .= 'width: ' . esc_attr( $width ) . '%;';
+	if ( 'yes' === $outline ) {
+		$css .= 'border-left: ' . esc_attr( $line_width ) . 'px solid ' . esc_attr( $line_color ) . ';';
+		$css .= 'border-right: ' . esc_attr( $line_width ) . 'px solid ' . esc_attr( $line_color ) . ';';
+	}
+	$css .= '}';
+
+	$css .= '.hello-grid-lines-columns {';
+	$css .= 'display: flex;';
+	$css .= 'height: 100%;';
+	$css .= 'transform: rotate(' . esc_attr( $direction ) . 'deg);';
+	$css .= '}';
+
+	$css .= '.hello-grid-lines-column {';
+	$css .= 'flex: 1;';
+	$css .= 'background-color: ' . esc_attr( $column_color ) . ';';
+	$css .= 'border-right: ' . esc_attr( $line_width ) . 'px solid ' . esc_attr( $line_color ) . ';';
+	$css .= '}';
+
+	$css .= '.hello-grid-lines-column:last-child {';
+	$css .= 'border-right: none;';
+	$css .= '}';
+
+	// Tablet styles
+	$css .= '@media (max-width: 1024px) {';
+	$css .= '.hello-grid-lines-overlay {';
+	$css .= 'max-width: ' . esc_attr( $max_width_tablet ) . 'px;';
+	$css .= 'width: ' . esc_attr( $width_tablet ) . '%;';
+	if ( 'yes' === $outline ) {
+		$css .= 'border-left-width: ' . esc_attr( $line_width_tablet ) . 'px;';
+		$css .= 'border-right-width: ' . esc_attr( $line_width_tablet ) . 'px;';
+	}
+	$css .= '}';
+	$css .= '.hello-grid-lines-column {';
+	$css .= 'border-right-width: ' . esc_attr( $line_width_tablet ) . 'px;';
+	$css .= '}';
+	$css .= '}';
+
+	// Mobile styles
+	$css .= '@media (max-width: 767px) {';
+	$css .= '.hello-grid-lines-overlay {';
+	$css .= 'max-width: ' . esc_attr( $max_width_mobile ) . 'px;';
+	$css .= 'width: ' . esc_attr( $width_mobile ) . '%;';
+	if ( 'yes' === $outline ) {
+		$css .= 'border-left-width: ' . esc_attr( $line_width_mobile ) . 'px;';
+		$css .= 'border-right-width: ' . esc_attr( $line_width_mobile ) . 'px;';
+	}
+	$css .= '}';
+	$css .= '.hello-grid-lines-column {';
+	$css .= 'border-right-width: ' . esc_attr( $line_width_mobile ) . 'px;';
+	$css .= '}';
+	$css .= '}';
+
+	$css .= '</style>';
+
+	echo $css;
+}
+add_action( 'wp_head', 'hello_elementor_grid_lines_css' );
+
+/**
+ * Output Grid Lines HTML on frontend if enabled
+ *
+ * @return void
+ */
+function hello_elementor_grid_lines_html() {
+	if ( ! hello_header_footer_experiment_active() ) {
+		return;
+	}
+
+	$grid_lines_enable = hello_elementor_get_setting( 'hello_grid_lines_enable' );
+	
+	if ( 'yes' !== $grid_lines_enable ) {
+		return;
+	}
+
+	$columns = hello_elementor_get_setting( 'hello_grid_lines_columns' );
+	$columns_tablet = hello_elementor_get_setting( 'hello_grid_lines_columns_tablet' );
+	$columns_mobile = hello_elementor_get_setting( 'hello_grid_lines_columns_mobile' );
+
+	// Set defaults if empty
+	$columns = $columns['size'] ?? 12;
+	$columns_tablet = $columns_tablet['size'] ?? 8;
+	$columns_mobile = $columns_mobile['size'] ?? 4;
+
+	echo '<div class="hello-grid-lines-overlay">';
+	echo '<div class="hello-grid-lines-columns">';
+	
+	// Use desktop columns as base, tablets and mobile will be handled by media queries and JavaScript if needed
+	for ( $i = 0; $i < $columns; $i++ ) {
+		echo '<div class="hello-grid-lines-column"></div>';
+	}
+	
+	echo '</div>';
+	echo '</div>';
+
+	// Add responsive column adjustment script
+	echo '<script>';
+	echo 'document.addEventListener("DOMContentLoaded", function() {';
+	echo 'function adjustGridColumns() {';
+	echo 'var overlay = document.querySelector(".hello-grid-lines-columns");';
+	echo 'if (!overlay) return;';
+	echo 'var screenWidth = window.innerWidth;';
+	echo 'var targetColumns = ' . esc_js( $columns ) . ';';
+	echo 'if (screenWidth <= 767) { targetColumns = ' . esc_js( $columns_mobile ) . '; }';
+	echo 'else if (screenWidth <= 1024) { targetColumns = ' . esc_js( $columns_tablet ) . '; }';
+	echo 'var currentColumns = overlay.children.length;';
+	echo 'if (currentColumns !== targetColumns) {';
+	echo 'overlay.innerHTML = "";';
+	echo 'for (var i = 0; i < targetColumns; i++) {';
+	echo 'var column = document.createElement("div");';
+	echo 'column.className = "hello-grid-lines-column";';
+	echo 'overlay.appendChild(column);';
+	echo '}';
+	echo '}';
+	echo '}';
+	echo 'adjustGridColumns();';
+	echo 'window.addEventListener("resize", adjustGridColumns);';
+	echo '});';
+	echo '</script>';
+}
+add_action( 'wp_footer', 'hello_elementor_grid_lines_html' );
+
 // Settings page
 require get_template_directory() . '/includes/settings-functions.php';
 
